@@ -97,7 +97,6 @@ function getFileOriginName(fileName) {
     const pattern = /\.{1}[A-Za-z]{1,}$/;
     const _suffixIndex = pattern.exec(fileName).index
     const _suffix = pattern.exec(fileName)[0];
-    console.log(fileName.substring(0, _suffixIndex - hashLength) + _suffix)
     return fileName.substring(0, _suffixIndex - hashLength) + _suffix;
 }
 
