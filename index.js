@@ -102,7 +102,6 @@ function getFileOriginName(fileName) {
 }
 
 function travel(dir, callback) {
-
     fs.readdirSync(dir).forEach((file) => {
         const pathname = path.join(dir, file)
 
@@ -143,7 +142,6 @@ function renameExportDirName() {
 function renameFileOrDirectory(filePath, newFilePath) {
     try {
         fs.renameSync(filePath, newFilePath)
-        console.log("Successfully renamed the file!")
     } catch (err) {
         throw err
     }
@@ -151,9 +149,11 @@ function renameFileOrDirectory(filePath, newFilePath) {
 
 function renameAllFile() {
     renameExportDirName();
+    console.log('正在重命名所有带有hash的文件或者文件夹')
     travel('./workspace/export', function (pathname) {
         // console.log(pathname)
     });
+    console.log(`✅重命名完成!`)
 }
 
 const run = async () => {
