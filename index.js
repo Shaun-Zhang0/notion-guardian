@@ -3,6 +3,7 @@ const extract = require(`extract-zip`);
 const fs = require(`fs`);
 const {rm, mkdir, unlink} = require(`fs/promises`);
 const path = require(`path`);
+const config = require("dotenv").config()
 
 const unofficialNotionAPI = `https://www.notion.so/api/v3`;
 const {NOTION_TOKEN, NOTION_SPACE_ID, NOTION_USER_ID} = process.env;
@@ -150,14 +151,14 @@ function renameFileOrDirectory(filePath, newFilePath) {
 }
 
 function renameAllFile() {
-    // renameExportDirName();
-    travel('./workspace/', function (pathname) {
+    renameExportDirName();
+    travel('./workspace/export', function (pathname) {
         // console.log(pathname)
     });
 }
 
 const run = async () => {
-    const workspaceDir = path.join(process.cwd(), `workspace`);
+    const workspaceDir = path.join(process.cwd(), `workspace/export`);
     const workspaceZip = path.join(process.cwd(), `workspace.zip`);
 
     await exportFromNotion(workspaceZip, `markdown`);
