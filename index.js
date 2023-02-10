@@ -106,7 +106,7 @@ function travel(dir, callback) {
         const pathname = path.join(dir, file)
 
         let newFilePath = ''
-        console.log(newFilePath)
+        console.log('正在导出'+newFilePath);
         if (fs.statSync(pathname).isDirectory()) {
             newFilePath = path.join(dir, file.slice(0, -33));
             travel(pathname, callback)
@@ -153,7 +153,7 @@ function renameAllFile() {
     travel('./workspace/export', function (pathname) {
         // console.log(pathname)
     });
-    console.log(`✅重命名完成!`)
+    console.log(`✅重命名完成.`)
 }
 
 const run = async () => {
@@ -167,7 +167,7 @@ const run = async () => {
     await unlink(workspaceZip);
     renameAllFile();
 
-    console.log(`✅ Export downloaded and unzipped.`);
+    console.log(`✅ 自动备份脚本完成.`);
 };
 
 run();
