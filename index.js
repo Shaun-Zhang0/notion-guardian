@@ -151,7 +151,7 @@ function renameFileOrDirectory(filePath, newFilePath) {
 
 function renameAllFile() {
     renameExportDirName();
-    travel('./workspace/export', function (pathname) {
+    travel('./workspace/', function (pathname) {
         // console.log(pathname)
     });
 }
