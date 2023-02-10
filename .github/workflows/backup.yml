@@ -37,7 +37,7 @@ jobs:
           REPO_EMAIL: ${{ secrets.REPO_EMAIL }}
           REPO_USERNAME: ${{ secrets.REPO_USERNAME }}
         run: |
-          cp -a workspace/export. backup-repo/
+          cp -a workspace/export/. backup-repo/
           cd backup-repo
           git config --local user.email "${REPO_EMAIL}"
           git config --local user.name "${REPO_USERNAME}"
