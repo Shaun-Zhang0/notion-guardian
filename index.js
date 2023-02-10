@@ -1,88 +1,88 @@
 const axios = require(`axios`);
 const extract = require(`extract-zip`);
 const fs = require(`fs`);
-const { rm, mkdir, unlink } = require(`fs/promises`);
-const { join } = require(`path`);
+const {rm, mkdir, unlink} = require(`fs/promises`);
+const path = require(`path`);
 
 const unofficialNotionAPI = `https://www.notion.so/api/v3`;
-const { NOTION_TOKEN, NOTION_SPACE_ID, NOTION_USER_ID } = process.env;
+const {NOTION_TOKEN, NOTION_SPACE_ID, NOTION_USER_ID} = process.env;
 const client = axios.create({
-  baseURL: unofficialNotionAPI,
-  headers: {
-    Cookie: `token_v2=${NOTION_TOKEN};`,
-    "x-notion-active-user-header": NOTION_USER_ID,
-  },
+    baseURL: unofficialNotionAPI,
+    headers: {
+        Cookie: `token_v2=${NOTION_TOKEN};`,
+        "x-notion-active-user-header": NOTION_USER_ID,
+    },
 });
 
 if (!NOTION_TOKEN || !NOTION_SPACE_ID || !NOTION_USER_ID) {
-  console.error(
-    `Environment variable NOTION_TOKEN, NOTION_SPACE_ID or NOTION_USER_ID is missing. Check the README.md for more information.`
-  );
-  process.exit(1);
+    console.error(
+        `Environment variable NOTION_TOKEN, NOTION_SPACE_ID or NOTION_USER_ID is missing. Check the README.md for more information.`
+    );
+    process.exit(1);
 }
 
 const sleep = async (seconds) => {
-  return new Promise((resolve) => {
-    setTimeout(resolve, seconds * 1000);
-  });
+    return new Promise((resolve) => {
+        setTimeout(resolve, seconds * 1000);
+    });
 };
 
 const round = (number) => Math.round(number * 100) / 100;
 
 const exportFromNotion = async (destination, format) => {
-  const task = {
-    eventName: `exportSpace`,
-    request: {
-      spaceId: NOTION_SPACE_ID,
-      exportOptions: {
-        exportType: format,
-        timeZone: `Europe/Berlin`,
-        locale: `en`,
-      },
-    },
-  };
-  const {
-    data: { taskId },
-  } = await client.post(`enqueueTask`, { task });
-
-  console.log(`Started Export as task [${taskId}].\n`);
-
-  let exportURL;
-  while (true) {
-    await sleep(2);
+    const task = {
+        eventName: `exportSpace`,
+        request: {
+            spaceId: NOTION_SPACE_ID,
+            exportOptions: {
+                exportType: format,
+                timeZone: `Europe/Berlin`,
+                locale: `en`,
+            },
+        },
+    };
     const {
-      data: { results: tasks },
-    } = await client.post(`getTasks`, { taskIds: [taskId] });
-    const task = tasks.find((t) => t.id === taskId);
+        data: {taskId},
+    } = await client.post(`enqueueTask`, {task});
 
-    if (task.error) {
-      console.error(`❌ Export failed with reason: ${task.error}`);
-      process.exit(1);
+    console.log(`Started Export as task [${taskId}].\n`);
+
+    let exportURL;
+    while (true) {
+        await sleep(2);
+        const {
+            data: {results: tasks},
+        } = await client.post(`getTasks`, {taskIds: [taskId]});
+        const task = tasks.find((t) => t.id === taskId);
+
+        if (task.error) {
+            console.error(`❌ Export failed with reason: ${task.error}`);
+            process.exit(1);
+        }
+
+        console.log(`Exported ${task.status.pagesExported} pages.`);
+
+        if (task.state === `success`) {
+            exportURL = task.status.exportURL;
+            console.log(`\nExport finished.`);
+            break;
+        }
     }
 
-    console.log(`Exported ${task.status.pagesExported} pages.`);
+    const response = await client({
+        method: `GET`,
+        url: exportURL,
+        responseType: `stream`,
+    });
 
-    if (task.state === `success`) {
-      exportURL = task.status.exportURL;
-      console.log(`\nExport finished.`);
-      break;
-    }
-  }
+    const size = response.headers["content-length"];
+    console.log(`Downloading ${round(size / 1000 / 1000)}mb...`);
 
-  const response = await client({
-    method: `GET`,
-    url: exportURL,
-    responseType: `stream`,
-  });
-
-  const size = response.headers["content-length"];
-  console.log(`Downloading ${round(size / 1000 / 1000)}mb...`);
-
-  const stream = response.data.pipe(fs.createWriteStream(destination));
-  await new Promise((resolve, reject) => {
-    stream.on(`close`, resolve);
-    stream.on(`error`, reject);
-  });
+    const stream = response.data.pipe(fs.createWriteStream(destination));
+    await new Promise((resolve, reject) => {
+        stream.on(`close`, resolve);
+        stream.on(`error`, reject);
+    });
 };
 
 /**
@@ -148,24 +148,26 @@ function renameFileOrDirectory(filePath, newFilePath) {
         throw err
     }
 }
+
 function renameAllFile() {
     renameExportDirName();
     travel('./workspace/export', function (pathname) {
         // console.log(pathname)
     });
 }
+
 const run = async () => {
-  const workspaceDir = join(process.cwd(), `workspace`);
-  const workspaceZip = join(process.cwd(), `workspace.zip`);
+    const workspaceDir = path.join(process.cwd(), `workspace`);
+    const workspaceZip = path.join(process.cwd(), `workspace.zip`);
 
-  await exportFromNotion(workspaceZip, `markdown`);
-  await rm(workspaceDir, { recursive: true, force: true });
-  await mkdir(workspaceDir, { recursive: true });
-  await extract(workspaceZip, { dir: workspaceDir });
-  await unlink(workspaceZip);
-  renameAllFile();
+    await exportFromNotion(workspaceZip, `markdown`);
+    await rm(workspaceDir, {recursive: true, force: true});
+    await mkdir(workspaceDir, {recursive: true});
+    await extract(workspaceZip, {dir: workspaceDir});
+    await unlink(workspaceZip);
+    renameAllFile();
 
-  console.log(`✅ Export downloaded and unzipped.`);
+    console.log(`✅ Export downloaded and unzipped.`);
 };
 
 run();
