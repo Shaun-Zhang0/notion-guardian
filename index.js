@@ -106,7 +106,6 @@ function travel(dir, callback) {
         const pathname = path.join(dir, file)
 
         let newFilePath = ''
-        console.log('正在导出'+newFilePath);
         if (fs.statSync(pathname).isDirectory()) {
             newFilePath = path.join(dir, file.slice(0, -33));
             travel(pathname, callback)
