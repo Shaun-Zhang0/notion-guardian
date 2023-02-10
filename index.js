@@ -1,6 +1,6 @@
 const axios = require(`axios`);
 const extract = require(`extract-zip`);
-const { createWriteStream } = require(`fs`);
+const fs = require(`fs`);
 const { rm, mkdir, unlink } = require(`fs/promises`);
 const { join } = require(`path`);
 
@@ -78,7 +78,7 @@ const exportFromNotion = async (destination, format) => {
   const size = response.headers["content-length"];
   console.log(`Downloading ${round(size / 1000 / 1000)}mb...`);
 
-  const stream = response.data.pipe(createWriteStream(destination));
+  const stream = response.data.pipe(fs.createWriteStream(destination));
   await new Promise((resolve, reject) => {
     stream.on(`close`, resolve);
     stream.on(`error`, reject);
