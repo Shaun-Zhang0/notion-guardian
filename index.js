@@ -124,11 +124,8 @@ function renameExportDirName() {
     const dir = './workspace';
     fs.readdirSync('./workspace').forEach((file) => {
         const pathname = path.join(dir, file)
-        console.log(pathname);
         const newPathName = path.join(dir, 'export')
         if (fs.statSync(pathname).isDirectory()) {
-            console.log('pathname',pathname)
-            console.log('newPathName',newPathName)
             renameFileOrDirectory(pathname, newPathName)
         }
     })
@@ -158,7 +155,7 @@ function renameAllFile() {
 }
 
 const run = async () => {
-    const workspaceDir = path.join(process.cwd(), `workspace`);
+    const workspaceDir = path.join(process.cwd(), `workspace/export`);
     const workspaceZip = path.join(process.cwd(), `workspace.zip`);
 
     await exportFromNotion(workspaceZip, `markdown`);
