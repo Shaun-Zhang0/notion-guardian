@@ -124,6 +124,7 @@ function renameExportDirName() {
     const dir = './workspace';
     fs.readdirSync('./workspace').forEach((file) => {
         const pathname = path.join(dir, file)
+        console.log(pathname);
         const newPathName = path.join(dir, 'export')
         if (fs.statSync(pathname).isDirectory()) {
             renameFileOrDirectory(pathname, newPathName)
