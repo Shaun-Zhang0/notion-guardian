@@ -127,6 +127,8 @@ function renameExportDirName() {
         console.log(pathname);
         const newPathName = path.join(dir, 'export')
         if (fs.statSync(pathname).isDirectory()) {
+            console.log('pathname',pathname)
+            console.log('newPathName',newPathName)
             renameFileOrDirectory(pathname, newPathName)
         }
     })
