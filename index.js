@@ -158,7 +158,7 @@ function renameAllFile() {
 }
 
 const run = async () => {
-    const workspaceDir = path.join(process.cwd(), `workspace/export`);
+    const workspaceDir = path.join(process.cwd(), `workspace`);
     const workspaceZip = path.join(process.cwd(), `workspace.zip`);
 
     await exportFromNotion(workspaceZip, `markdown`);
