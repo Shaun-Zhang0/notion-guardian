@@ -123,7 +123,7 @@ function travel(dir, callback) {
         if (isMarkdownFile(file)) {
             rewriteMarkdownImgOrLink(pathname)
         }
-        renameFileOrDirectory(pathname, newFilePath)
+        // renameFileOrDirectory(pathname, newFilePath)
     })
 }
 
