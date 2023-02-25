@@ -3,7 +3,6 @@ const extract = require(`extract-zip`);
 const fs = require(`fs`);
 const {rm, mkdir, unlink} = require(`fs/promises`);
 const path = require(`path`);
-const dotenv = require("dotenv")
 const {readFileSync} = require('fs');
 
 const unofficialNotionAPI = `https://www.notion.so/api/v3`;
