@@ -3,7 +3,7 @@ const extract = require(`extract-zip`);
 const fs = require(`fs`);
 const {rm, mkdir, unlink} = require(`fs/promises`);
 const path = require(`path`);
-const {readFileSync} = require('fs');
+const {readFileSync, writeFileSync} = require('fs');
 
 const unofficialNotionAPI = `https://www.notion.so/api/v3`;
 const {NOTION_TOKEN, NOTION_SPACE_ID, NOTION_USER_ID} = process.env;
@@ -102,19 +102,13 @@ function getFileOriginName(fileName) {
 }
 
 const rewriteMarkdownImgOrLink = function (filePath, sourceRegx, targetStr) {
-
-    fs.readFileSync(filePath, {flag: 'rs+'}, function (err, data) {
+    console.log('rewriteMarkdownImgOrLink')
+    fs.readFile(filePath, function (err, data) {
         if (err) {
             return err;
         }
         let str = data.toString();
-        console.log(str)
-        const isMatch = /\[[\s\S]*?\]\([\s\S]*?\)/g.test(str)
-        const matchStr = /\[[\s\S]*?\]\([\s\S]*?\)/g.exec(str)
-        // const
-        console.log(str + isMatch)
-        str = str.replaceAll(/(!\[[a-zA-Z0-9_-\u4e00-\u9fa5,\.\[\]\(\)\{\}]+\]\([a-zA-Z0-9_-\u4e00-\u9fa5,\.\[\]\(\)\{\}]+)%[a-zA-Z-0-9]+\//gi, `$1/`);
-        // str = str.replace(/ [a-zA-Z0-9]{32}([/.])/gi, '$1')
+        str = str.replace(/(!\[[a-zA-Z0-9_-\u4e00-\u9fa5,\.\[\]\(\)\{\}]+\]\([a-zA-Z0-9_-\u4e00-\u9fa5,\.\[\]\(\)\{\}]+)%[a-zA-Z-0-9]+\//, `$1/`);
         fs.writeFile(filePath, str, function (err) {
             if (err) return err;
         });
@@ -130,8 +124,9 @@ function travel(dir, callback) {
             travel(pathname, callback)
         } else {
             newFilePath = path.join(dir, getFileOriginName(file));
-            rewriteMarkdownImgOrLink(pathname)
-            console.log(file + 'ismarkdown' + isMarkdownFile(file))
+            if (isMarkdownFile(file)) {
+                rewriteMarkdownImgOrLink(pathname)
+            }
             callback(file)
         }
         renameFileOrDirectory(pathname, newFilePath)
