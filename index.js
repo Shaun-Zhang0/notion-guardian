@@ -102,8 +102,8 @@ function getFileOriginName(fileName) {
 }
 
 const rewriteMarkdownImgOrLink = function (filePath, sourceRegx, targetStr) {
-    console.log('rewriteMarkdownImgOrLink')
     fs.readFile(filePath, function (err, data) {
+        console.log('rewriteMarkdownImgOrLink')
         if (err) {
             return err;
         }
