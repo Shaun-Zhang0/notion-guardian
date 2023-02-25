@@ -3,6 +3,8 @@ const extract = require(`extract-zip`);
 const fs = require(`fs`);
 const {rm, mkdir, unlink} = require(`fs/promises`);
 const path = require(`path`);
+const dotenv = require("dotenv")
+const config = dotenv.config()
 
 const unofficialNotionAPI = `https://www.notion.so/api/v3`;
 const {NOTION_TOKEN, NOTION_SPACE_ID, NOTION_USER_ID} = process.env;
@@ -100,16 +102,36 @@ function getFileOriginName(fileName) {
     return fileName.substring(0, _suffixIndex - hashLength) + _suffix;
 }
 
+const rewriteMarkdownImgOrLink = function (filePath, sourceRegx, targetStr) {
+
+    fs.readFileSync(filePath, function (err, data) {
+        if (err) {
+            return err;
+        }
+        let str = data.toString();
+        console.log(str)
+        const isMatch = /\[[\s\S]*?\]\([\s\S]*?\)/g.test(str)
+        const matchStr = /\[[\s\S]*?\]\([\s\S]*?\)/g.exec(str)
+        // const
+        console.log(str + isMatch)
+        str = str.replace(/(!\[[a-zA-Z0-9_-\u4e00-\u9fa5,\.\[\]\(\)\{\}]+\]\([a-zA-Z0-9_-\u4e00-\u9fa5,\.\[\]\(\)\{\}]+)%[a-zA-Z-0-9]+\//, `$1/`);
+        // str = str.replace(/ [a-zA-Z0-9]{32}([/.])/gi, '$1')
+        fs.writeFile(filePath, str, function (err) {
+            if (err) return err;
+        });
+    });
+}
+
 function travel(dir, callback) {
     fs.readdirSync(dir).forEach((file) => {
         const pathname = path.join(dir, file)
-
         let newFilePath = ''
         if (fs.statSync(pathname).isDirectory()) {
             newFilePath = path.join(dir, file.slice(0, -33));
             travel(pathname, callback)
         } else {
             newFilePath = path.join(dir, getFileOriginName(file));
+            console.log(file + 'ismarkdown' + isMarkdownFile(file))
             callback(file)
         }
         renameFileOrDirectory(pathname, newFilePath)
@@ -131,6 +153,14 @@ function renameExportDirName() {
     })
 }
 
+/**
+ * 是否为markdown文件
+ * @param fileName
+ */
+function isMarkdownFile(fileName) {
+    const regExc = /%*.md$/
+    return regExc.test(fileName);
+}
 
 /**
  * 重命名文件夹或文件
@@ -139,6 +169,7 @@ function renameExportDirName() {
  */
 function renameFileOrDirectory(filePath, newFilePath) {
     try {
+        rewriteMarkdownImgOrLink(filePath)
         fs.renameSync(filePath, newFilePath)
     } catch (err) {
         throw err
