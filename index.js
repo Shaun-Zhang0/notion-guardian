@@ -3,8 +3,6 @@ const extract = require(`extract-zip`);
 const fs = require(`fs`);
 const {rm, mkdir, unlink} = require(`fs/promises`);
 const path = require(`path`);
-const dotenv = require("dotenv")
-const config = dotenv.config()
 
 const unofficialNotionAPI = `https://www.notion.so/api/v3`;
 const {NOTION_TOKEN, NOTION_SPACE_ID, NOTION_USER_ID} = process.env;
