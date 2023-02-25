@@ -102,17 +102,13 @@ function getFileOriginName(fileName) {
 }
 
 const rewriteMarkdownImgOrLink = function (filePath, sourceRegx, targetStr) {
-    fs.readFile(filePath, function (err, data) {
-        console.log('rewriteMarkdownImgOrLink')
-        if (err) {
-            return err;
-        }
-        let str = data.toString();
-        str = str.replace(/(!\[[a-zA-Z0-9_-\u4e00-\u9fa5,\.\[\]\(\)\{\}]+\]\([a-zA-Z0-9_-\u4e00-\u9fa5,\.\[\]\(\)\{\}]+)%[a-zA-Z-0-9]+\//, `$1/`);
-        fs.writeFile(filePath, str, function (err) {
-            if (err) return err;
-        });
+    const data = fs.readFileSync(filePath,{flag:'r+'})
+    let str = data.toString();
+    // str = str.replace(/(!\[[a-zA-Z0-9_-\u4e00-\u9fa5,\.\[\]\(\)\{\}]+\]\([a-zA-Z0-9_-\u4e00-\u9fa5,\.\[\]\(\)\{\}]+)%[a-zA-Z-0-9]+\//, `$1/`);
+    fs.writeFile(filePath, str, function (err) {
+        if (err) return err;
     });
+
 }
 
 function travel(dir, callback) {
@@ -124,10 +120,10 @@ function travel(dir, callback) {
             travel(pathname, callback)
         } else {
             newFilePath = path.join(dir, getFileOriginName(file));
-            if (isMarkdownFile(file)) {
-                rewriteMarkdownImgOrLink(pathname)
-            }
             callback(file)
+        }
+        if (isMarkdownFile(file)) {
+            rewriteMarkdownImgOrLink(pathname)
         }
         renameFileOrDirectory(pathname, newFilePath)
     })
