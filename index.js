@@ -105,7 +105,7 @@ const rewriteMarkdownImgOrLink = function (filePath, sourceRegx, targetStr) {
     const data = fs.readFileSync(filePath,{flag:'r+'})
     let str = data.toString();
     str = str.replace(/(!\[[a-zA-Z0-9_-\u4e00-\u9fa5,\.\[\]\(\)\{\}]+\]\([a-zA-Z0-9_-\u4e00-\u9fa5,\.\[\]\(\)\{\}]+)%[a-zA-Z-0-9]+\//, `$1/`);
-    fs.writeFile(filePath, str, function (err) {
+    fs.writeFileSync(filePath, str, function (err) {
         if (err) return err;
     });
 
