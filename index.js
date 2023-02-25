@@ -103,6 +103,7 @@ function getFileOriginName(fileName) {
 
 const rewriteMarkdownImgOrLink = function (filePath, sourceRegx, targetStr) {
     const data = fs.readFileSync(filePath, {flag: 'r+'})
+    console.log(filePath)
     let str = data.toString();
     str = str.replace(/(!\[[a-zA-Z0-9_-\u4e00-\u9fa5,\.\[\]\(\)\{\}]+\]\([a-zA-Z0-9_-\u4e00-\u9fa5,\.\[\]\(\)\{\}]+)%[a-zA-Z-0-9]+\//, `$1/`);
     fs.writeFileSync(filePath, str, {flag: 'w+'});
